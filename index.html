@@ -3,470 +3,177 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Wendy's® | Quality Is Our Recipe®</title>
+  <title>CBC News Reader</title>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <!-- NAV -->
-  <nav class="nav">
-    <div class="nav-inner">
-      <a href="#" class="nav-logo">
-        <div class="wendys-w">W</div>
-        <span>Wendy's<sup>®</sup></span>
-      </a>
-      <ul class="nav-links">
-        <li><a href="#menu">Menu</a></li>
-        <li><a href="#fresh">Fresh Promise</a></li>
-        <li><a href="#frosty">Frosty</a></li>
-        <li><a href="#deals">Deals</a></li>
-        <li><a href="#news">In The News</a></li>
-        <li><a href="#locations">Find a Wendy's</a></li>
-      </ul>
-      <a href="#order" class="btn-order">Order Now</a>
-    </div>
-  </nav>
-
-  <!-- HERO -->
-  <section class="hero">
-    <div class="hero-bg">
-      <div class="hero-blob blob-1"></div>
-      <div class="hero-blob blob-2"></div>
-    </div>
-    <div class="hero-content">
-      <p class="hero-eyebrow">Always Fresh. Never Frozen.</p>
-      <h1>Made to Order.<br /><span class="hero-accent">Made Right.</span></h1>
-      <p class="hero-sub">Real beef. Real chicken. Real Frostys. That's the Wendy's difference.</p>
-      <div class="hero-ctas">
-        <a href="#menu" class="btn-primary">See Our Menu</a>
-        <a href="#fresh" class="btn-ghost">Our Fresh Promise</a>
-      </div>
-    </div>
-    <div class="hero-badge">
-      <div class="hero-badge-inner">
-        <span class="badge-top">Fresh</span>
-        <span class="badge-mid">NEVER</span>
-        <span class="badge-bot">Frozen</span>
-      </div>
-    </div>
-  </section>
-
-  <!-- SCROLLING BANNER -->
-  <div class="ticker">
-    <div class="ticker-track">
-      <span>★ Fresh, Never Frozen Beef</span>
-      <span>★ Dave's Single</span>
-      <span>★ Baconator</span>
-      <span>★ Spicy Chicken Sandwich</span>
-      <span>★ Natural-Cut Fries</span>
-      <span>★ The Frosty®</span>
-      <span>★ Fresh, Never Frozen Beef</span>
-      <span>★ Dave's Single</span>
-      <span>★ Baconator</span>
-      <span>★ Spicy Chicken Sandwich</span>
-      <span>★ Natural-Cut Fries</span>
-      <span>★ The Frosty®</span>
-    </div>
-  </div>
-
-  <!-- FEATURED MENU -->
-  <section class="menu" id="menu">
+  <header class="site-header">
     <div class="container">
-      <div class="section-header">
-        <p class="section-eyebrow">Our Menu</p>
-        <h2>Fan Favorites</h2>
-        <p class="section-sub">From the Baconator to the Frosty, every item is made fresh to order.</p>
-      </div>
-      <div class="menu-grid">
-
-        <div class="menu-card featured">
-          <div class="menu-card-bg" style="background: linear-gradient(135deg, #1a0000 0%, #3d0000 100%);"></div>
-          <div class="menu-card-content">
-            <span class="menu-tag">Best Seller</span>
-            <div class="menu-icon">🍔</div>
-            <h3>Dave's Single</h3>
-            <p>A quarter-pound of fresh, never-frozen beef with American cheese, crisp lettuce, tomato, pickle, ketchup, mayo, and onion. Simple perfection.</p>
-            <a href="#order" class="btn-menu">Order Now</a>
-          </div>
+      <div class="header-inner">
+        <div class="logo">
+          <span class="logo-cbc">CBC</span>
+          <span class="logo-label">News Reader</span>
         </div>
-
-        <div class="menu-card">
-          <div class="menu-card-bg" style="background: linear-gradient(135deg, #0d0a00 0%, #2a2000 100%);"></div>
-          <div class="menu-card-content">
-            <span class="menu-tag">Fan Favourite</span>
-            <div class="menu-icon">🥓</div>
-            <h3>Baconator</h3>
-            <p>Two quarter-pound patties, six strips of Applewood smoked bacon, American cheese, ketchup, and mayo. No vegetables. No compromises.</p>
-            <a href="#order" class="btn-menu">Order Now</a>
-          </div>
-        </div>
-
-        <div class="menu-card">
-          <div class="menu-card-bg" style="background: linear-gradient(135deg, #0a0d00 0%, #1a2500 100%);"></div>
-          <div class="menu-card-content">
-            <span class="menu-tag">🌶 Spicy</span>
-            <div class="menu-icon">🍗</div>
-            <h3>Spicy Chicken Sandwich</h3>
-            <p>A hot and crispy chicken fillet marinated with a blend of peppers, lettuce, tomato, and mayo on a toasted bun. A Wendy's icon.</p>
-            <a href="#order" class="btn-menu">Order Now</a>
-          </div>
-        </div>
-
-        <div class="menu-card">
-          <div class="menu-card-bg" style="background: linear-gradient(135deg, #00020d 0%, #000b25 100%);"></div>
-          <div class="menu-card-content">
-            <span class="menu-tag">Legendary</span>
-            <div class="menu-icon">🧊</div>
-            <h3>The Frosty®</h3>
-            <p>Not quite a milkshake. Not just ice cream. The Frosty is its own thing — thick, creamy, and perfect for dunking your fries.</p>
-            <a href="#order" class="btn-menu">Order Now</a>
-          </div>
-        </div>
-
-        <div class="menu-card">
-          <div class="menu-card-bg" style="background: linear-gradient(135deg, #0d0500 0%, #251200 100%);"></div>
-          <div class="menu-card-content">
-            <span class="menu-tag">Classic</span>
-            <div class="menu-icon">🍟</div>
-            <h3>Natural-Cut Fries</h3>
-            <p>Sea-salted, skin-on, natural-cut fries. Cooked golden and crispy. The side that upgrades every combo.</p>
-            <a href="#order" class="btn-menu">Order Now</a>
-          </div>
-        </div>
-
-        <div class="menu-card">
-          <div class="menu-card-bg" style="background: linear-gradient(135deg, #0d0000 0%, #280000 100%);"></div>
-          <div class="menu-card-content">
-            <span class="menu-tag">New</span>
-            <div class="menu-icon">🫙</div>
-            <h3>Pretzel Bacon Pub Burger</h3>
-            <p>Fresh beef on a warm pretzel bun with Applewood bacon, muenster cheese, beer cheese sauce, pickles, and crispy onions.</p>
-            <a href="#order" class="btn-menu">Order Now</a>
-          </div>
-        </div>
-
+        <nav class="feed-tabs" id="feed-tabs">
+          <button class="tab active" data-feed="https://www.cbc.ca/cmlink/rss-topstories">Top Stories</button>
+          <button class="tab" data-feed="https://www.cbc.ca/cmlink/rss-canada">Canada</button>
+          <button class="tab" data-feed="https://www.cbc.ca/cmlink/rss-politics">Politics</button>
+          <button class="tab" data-feed="https://www.cbc.ca/cmlink/rss-world">World</button>
+          <button class="tab" data-feed="https://www.cbc.ca/cmlink/rss-business">Business</button>
+        </nav>
+        <button class="btn-refresh" id="btn-refresh">&#8635; Refresh</button>
       </div>
     </div>
-  </section>
+  </header>
 
-  <!-- FRESH PROMISE -->
-  <section class="fresh" id="fresh">
-    <div class="fresh-inner">
-      <div class="fresh-text">
-        <p class="section-eyebrow" style="color:#ffc72c;">The Wendy's Promise</p>
-        <h2>Fresh Beef,<br />Every Single Day.</h2>
-        <p>Since Dave Thomas opened the first Wendy's in 1969, we've never used frozen beef patties. Every hamburger is made from fresh, never-frozen beef — delivered to each restaurant and formed into patties the same day they're served.</p>
-        <p>That's not marketing. That's the way it's always been.</p>
-        <a href="#menu" class="btn-primary" style="margin-top:1rem;">Taste the Difference</a>
-      </div>
-      <div class="fresh-stats">
-        <div class="fresh-stat">
-          <span class="fstat-num">1969</span>
-          <span class="fstat-label">Founded in Columbus, Ohio</span>
-        </div>
-        <div class="fresh-stat">
-          <span class="fstat-num">7,000+</span>
-          <span class="fstat-label">Locations Worldwide</span>
-        </div>
-        <div class="fresh-stat">
-          <span class="fstat-num">100%</span>
-          <span class="fstat-label">Fresh, Never Frozen Beef</span>
-        </div>
-        <div class="fresh-stat">
-          <span class="fstat-num">0</span>
-          <span class="fstat-label">Days Frozen — Ever</span>
-        </div>
-      </div>
+  <main class="container">
+    <div class="toolbar">
+      <p class="status-text" id="status-text">Loading…</p>
     </div>
-  </section>
+    <div class="news-grid" id="news-grid"></div>
+  </main>
 
-  <!-- FROSTY SECTION -->
-  <section class="frosty-section" id="frosty">
+  <footer class="site-footer">
     <div class="container">
-      <div class="frosty-grid">
-        <div class="frosty-text">
-          <p class="section-eyebrow">Since 1969</p>
-          <h2>The <span class="hero-accent">Frosty.</span><br />An Icon.</h2>
-          <p>Dave Thomas put the Frosty on the very first Wendy's menu in 1969 — and it hasn't left. A chocolate Frosty is thick enough to eat with a spoon, cool enough to sip, and perfectly calibrated for dipping fries. Chocolate or vanilla, it's the original.</p>
-          <div class="frosty-flavors">
-            <div class="flavor-pill chocolate">🍫 Chocolate</div>
-            <div class="flavor-pill vanilla">🍦 Vanilla</div>
-            <div class="flavor-pill seasonal">🍓 Seasonal</div>
-          </div>
-        </div>
-        <div class="frosty-visual">
-          <div class="frosty-cup">
-            <div class="frosty-swirl">🍦</div>
-            <p>Try dipping<br />your fries.</p>
-          </div>
-        </div>
-      </div>
+      <p>Stories sourced from <strong>CBC News</strong> RSS feeds. Not affiliated with CBC/Radio-Canada.</p>
     </div>
-  </section>
-
-  <!-- DEALS STRIP -->
-  <section class="deals" id="deals">
-    <div class="container">
-      <div class="section-header">
-        <p class="section-eyebrow">Wendy's App</p>
-        <h2>Get More. Pay Less.</h2>
-        <p class="section-sub">Download the Wendy's app for exclusive deals, free food, and Rewards — because loyalty should be delicious.</p>
-      </div>
-      <div class="deals-grid">
-        <div class="deal-card">
-          <div class="deal-icon">🎁</div>
-          <h3>Free Breakfast Sandwich</h3>
-          <p>Download the app and get a free Breakfast Baconator on your first order.</p>
-          <span class="deal-badge">App Only</span>
-        </div>
-        <div class="deal-card">
-          <div class="deal-icon">⭐</div>
-          <h3>Wendy's Rewards</h3>
-          <p>Earn 10 points for every $1 spent. Redeem for free food, faster than you think.</p>
-          <span class="deal-badge">Always On</span>
-        </div>
-        <div class="deal-card">
-          <div class="deal-icon">🔥</div>
-          <h3>Daily Deals</h3>
-          <p>New app-exclusive offers drop every single day. Burgers, chicken, Frostys, and more.</p>
-          <span class="deal-badge">Daily</span>
-        </div>
-        <div class="deal-card">
-          <div class="deal-icon">💬</div>
-          <h3>Order Ahead</h3>
-          <p>Skip the line. Order on the app, customize everything, and pick up whenever you're ready.</p>
-          <span class="deal-badge">Skip the Line</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- NEWS FEED -->
-  <section class="news-section" id="news">
-    <div class="container">
-      <div class="section-header">
-        <p class="section-eyebrow">Fan Favourites</p>
-        <h2>Defence &amp; Federal Funding News</h2>
-        <p class="section-sub">Latest CBC News stories on DND and federal funding projects — cached daily, always fresh.</p>
-      </div>
-      <div class="news-toolbar">
-        <span class="news-timestamp" id="news-timestamp"></span>
-        <button class="btn-refresh" id="news-refresh">&#8635; Refresh</button>
-      </div>
-      <div class="news-grid" id="news-grid">
-        <div class="news-loading" id="news-loading">
-          <div class="spinner"></div>
-          <p>Fetching latest stories…</p>
-        </div>
-      </div>
-      <p class="news-source">Stories sourced from <strong>CBC News</strong> via RSS. Filtered for DND &amp; federal funding.</p>
-    </div>
-  </section>
-
-  <!-- FIND A LOCATION -->
-  <section class="locations" id="locations">
-    <div class="locations-inner">
-      <div class="locations-text">
-        <p class="section-eyebrow" style="color:#ffc72c;">Find Us</p>
-        <h2>There's a Wendy's Near You.</h2>
-        <p>With over 7,000 locations across North America and beyond, fresh beef is never far away.</p>
-        <a href="#" class="btn-primary" style="margin-top:1rem;">Find Nearest Location</a>
-      </div>
-      <div class="locations-map">
-        <div class="map-pin">📍</div>
-        <p class="map-label">7,000+ Locations Worldwide</p>
-      </div>
-    </div>
-  </section>
+  </footer>
 
   <script>
   (function () {
-    const FEEDS = [
-      'https://www.cbc.ca/cmlink/rss-politics',
-      'https://www.cbc.ca/cmlink/rss-canada',
-      'https://www.cbc.ca/cmlink/rss-topstories'
-    ];
-
-    const KEYWORDS = [
-      'dnd', 'department of national defence', 'national defence',
-      'defence', 'defense', 'military', 'armed forces', 'canadian forces',
-      'rcaf', 'royal canadian navy', 'canadian army',
-      'federal funding', 'federal funds', 'federal budget', 'federal grant',
-      'government funding', 'infrastructure funding', 'funding announcement',
-      'defence spending', 'defence budget', 'defence procurement',
-      'norad', 'nato canada', 'bill blair', 'minister of defence'
-    ];
-
-    const CACHE_KEY  = 'cbc_news_v2';
-    const CACHE_TTL  = 24 * 60 * 60 * 1000; // 24 h
+    const CACHE_PREFIX = 'cbc_reader_v1_';
+    const CACHE_TTL    = 24 * 60 * 60 * 1000;
 
     const grid      = document.getElementById('news-grid');
-    const loading   = document.getElementById('news-loading');
-    const timestamp = document.getElementById('news-timestamp');
-    const refreshBtn= document.getElementById('news-refresh');
+    const statusEl  = document.getElementById('status-text');
+    const refreshBtn= document.getElementById('btn-refresh');
+    const tabs      = document.querySelectorAll('.tab');
 
-    function isRelevant(item) {
-      const haystack = `${item.title} ${item.description}`.toLowerCase();
-      return KEYWORDS.some(kw => haystack.includes(kw));
+    let activeFeed = tabs[0].dataset.feed;
+
+    function cacheKey(url) {
+      return CACHE_PREFIX + btoa(url).slice(0, 32);
     }
 
-    async function fetchFeed(url) {
-      const api = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}&count=50`;
-      const res = await fetch(api);
-      if (!res.ok) return [];
-      const data = await res.json();
-      return Array.isArray(data.items) ? data.items : [];
+    function getCache(url) {
+      try {
+        const raw = localStorage.getItem(cacheKey(url));
+        if (!raw) return null;
+        const { ts, items } = JSON.parse(raw);
+        if (Date.now() - ts < CACHE_TTL) return items;
+      } catch (_) {}
+      return null;
     }
 
-    async function loadNews(force) {
+    function setCache(url, items) {
+      try {
+        localStorage.setItem(cacheKey(url), JSON.stringify({ ts: Date.now(), items }));
+      } catch (_) {}
+    }
+
+    function parseRSS(xmlText) {
+      const parser = new DOMParser();
+      const doc    = parser.parseFromString(xmlText, 'text/xml');
+      const items  = Array.from(doc.querySelectorAll('item'));
+      return items.map(item => ({
+        title:   item.querySelector('title')?.textContent?.trim() ?? '',
+        link:    item.querySelector('link')?.textContent?.trim() ?? '',
+        pubDate: item.querySelector('pubDate')?.textContent?.trim() ?? '',
+        desc:    (item.querySelector('description')?.textContent ?? '')
+                   .replace(/<[^>]*>/g, '').trim().slice(0, 160)
+      })).filter(i => i.title && i.link);
+    }
+
+    async function fetchFeed(url, force) {
       if (!force) {
-        const cached = localStorage.getItem(CACHE_KEY);
-        if (cached) {
-          try {
-            const { ts, articles } = JSON.parse(cached);
-            if (Date.now() - ts < CACHE_TTL) {
-              render(articles, new Date(ts));
-              return;
-            }
-          } catch (_) {}
-        }
+        const cached = getCache(url);
+        if (cached) return { items: cached, fromCache: true };
       }
 
-      loading.style.display = 'flex';
-      grid.querySelectorAll('.news-card').forEach(c => c.remove());
+      const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+      const res  = await fetch(proxyUrl);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (!data.contents) throw new Error('Empty response from proxy');
+      const items = parseRSS(data.contents);
+      setCache(url, items);
+      return { items, fromCache: false };
+    }
+
+    function renderItems(items, fromCache) {
+      grid.innerHTML = '';
+
+      if (!items.length) {
+        grid.innerHTML = '<p class="empty">No stories found.</p>';
+        statusEl.textContent = 'No results.';
+        return;
+      }
+
+      const ts = fromCache ? ' (cached)' : ' (live)';
+      statusEl.textContent = `${items.length} stories · ${new Date().toLocaleTimeString()}${ts}`;
+
+      items.forEach(item => {
+        const pub = item.pubDate
+          ? new Date(item.pubDate).toLocaleDateString('en-CA', { weekday:'short', month:'short', day:'numeric' })
+          : '';
+
+        const card = document.createElement('a');
+        card.className = 'card';
+        card.href = item.link;
+        card.target = '_blank';
+        card.rel = 'noopener noreferrer';
+        card.innerHTML = `
+          <div class="card-meta">
+            <span class="card-source">CBC News</span>
+            ${pub ? `<span class="card-date">${pub}</span>` : ''}
+          </div>
+          <h2>${item.title}</h2>
+          ${item.desc ? `<p>${item.desc}…</p>` : ''}
+          <span class="card-read">Read →</span>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function showError(msg) {
+      grid.innerHTML = `<p class="empty error">⚠ ${msg}</p>`;
+      statusEl.textContent = 'Error loading feed.';
+    }
+
+    async function load(force) {
       refreshBtn.disabled = true;
-      refreshBtn.textContent = '… loading';
+      refreshBtn.textContent = '…';
+      statusEl.textContent = 'Loading…';
+      grid.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
 
       try {
-        const results = await Promise.all(FEEDS.map(fetchFeed));
-        const all = results.flat();
-
-        // dedupe by url
-        const seen = new Set();
-        const unique = all.filter(item => {
-          if (seen.has(item.link)) return false;
-          seen.add(item.link);
-          return true;
-        });
-
-        // sort newest first
-        unique.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-        const filtered = unique;
-
-        const now = Date.now();
-        localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: now, articles: filtered }));
-        render(filtered, new Date(now));
+        const { items, fromCache } = await fetchFeed(activeFeed, force);
+        renderItems(items, fromCache);
       } catch (err) {
-        showError();
+        showError(`Could not load feed: ${err.message}`);
+        console.error('[CBC Reader]', err);
       } finally {
         refreshBtn.disabled = false;
         refreshBtn.textContent = '↻ Refresh';
       }
     }
 
-    function render(articles, fetchedAt) {
-      loading.style.display = 'none';
-      grid.querySelectorAll('.news-card').forEach(c => c.remove());
-
-      timestamp.textContent = `Last updated: ${fetchedAt.toLocaleString()}`;
-
-      if (!articles.length) {
-        const empty = document.createElement('p');
-        empty.className = 'news-empty';
-        empty.textContent = 'No DND or federal funding stories found right now. Try refreshing later.';
-        grid.appendChild(empty);
-        return;
-      }
-
-      articles.forEach(item => {
-        const pub = item.pubDate ? new Date(item.pubDate).toLocaleDateString('en-CA', { year:'numeric', month:'short', day:'numeric' }) : '';
-        const card = document.createElement('a');
-        card.className = 'news-card';
-        card.href = item.link;
-        card.target = '_blank';
-        card.rel = 'noopener noreferrer';
-
-        const desc = item.description
-          ? item.description.replace(/<[^>]*>/g, '').slice(0, 130).trim() + '…'
-          : '';
-
-        card.innerHTML = `
-          <div class="news-card-meta">
-            <span class="news-tag">CBC News</span>
-            ${pub ? `<span class="news-date">${pub}</span>` : ''}
-          </div>
-          <h3>${item.title}</h3>
-          ${desc ? `<p>${desc}</p>` : ''}
-          <span class="news-read">Read story &rarr;</span>
-        `;
-        grid.appendChild(card);
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        activeFeed = tab.dataset.feed;
+        load(false);
       });
-    }
+    });
 
-    function showError() {
-      loading.style.display = 'none';
-      const err = document.createElement('p');
-      err.className = 'news-empty';
-      err.textContent = 'Could not load stories. Check your connection and try again.';
-      grid.appendChild(err);
-      timestamp.textContent = '';
-    }
+    refreshBtn.addEventListener('click', () => load(true));
 
-    refreshBtn.addEventListener('click', () => loadNews(true));
-    loadNews(false);
+    load(false);
   })();
   </script>
-
-  <!-- FOOTER -->
-  <footer>
-    <div class="container">
-      <div class="footer-top">
-        <div class="footer-brand">
-          <div class="wendys-w footer-w">W</div>
-          <p>Wendy's<sup>®</sup></p>
-          <p class="footer-tagline">Quality Is Our Recipe<sup>®</sup></p>
-        </div>
-        <div class="footer-links">
-          <div class="footer-col">
-            <h4>Menu</h4>
-            <ul>
-              <li>Burgers</li>
-              <li>Chicken</li>
-              <li>Sides</li>
-              <li>Beverages</li>
-              <li>The Frosty</li>
-              <li>Breakfast</li>
-            </ul>
-          </div>
-          <div class="footer-col">
-            <h4>Company</h4>
-            <ul>
-              <li>About Wendy's</li>
-              <li>Dave's Legacy</li>
-              <li>Careers</li>
-              <li>Franchising</li>
-              <li>Newsroom</li>
-            </ul>
-          </div>
-          <div class="footer-col">
-            <h4>More</h4>
-            <ul>
-              <li>Nutrition Info</li>
-              <li>Allergen Guide</li>
-              <li>Gift Cards</li>
-              <li>Catering</li>
-              <li>Contact Us</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <p>© 2026 Wendy's International, LLC. Fan-made tribute site. Not affiliated with Wendy's International.</p>
-        <p>Wendy's<sup>®</sup> and the Wendy's logo are registered trademarks of Wendy's International, LLC.</p>
-      </div>
-    </div>
-  </footer>
 
 </body>
 </html>
