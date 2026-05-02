@@ -21,6 +21,7 @@
         <li><a href="#fresh">Fresh Promise</a></li>
         <li><a href="#frosty">Frosty</a></li>
         <li><a href="#deals">Deals</a></li>
+        <li><a href="#news">In The News</a></li>
         <li><a href="#locations">Find a Wendy's</a></li>
       </ul>
       <a href="#order" class="btn-order">Order Now</a>
@@ -241,6 +242,28 @@
     </div>
   </section>
 
+  <!-- NEWS FEED -->
+  <section class="news-section" id="news">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-eyebrow">Fan Favourites</p>
+        <h2>Defence &amp; Federal Funding News</h2>
+        <p class="section-sub">Latest CBC News stories on DND and federal funding projects — cached daily, always fresh.</p>
+      </div>
+      <div class="news-toolbar">
+        <span class="news-timestamp" id="news-timestamp"></span>
+        <button class="btn-refresh" id="news-refresh">&#8635; Refresh</button>
+      </div>
+      <div class="news-grid" id="news-grid">
+        <div class="news-loading" id="news-loading">
+          <div class="spinner"></div>
+          <p>Fetching latest stories…</p>
+        </div>
+      </div>
+      <p class="news-source">Stories sourced from <strong>CBC News</strong> via RSS. Filtered for DND &amp; federal funding.</p>
+    </div>
+  </section>
+
   <!-- FIND A LOCATION -->
   <section class="locations" id="locations">
     <div class="locations-inner">
@@ -256,6 +279,145 @@
       </div>
     </div>
   </section>
+
+  <script>
+  (function () {
+    const FEEDS = [
+      'https://www.cbc.ca/cmlink/rss-politics',
+      'https://www.cbc.ca/cmlink/rss-canada',
+      'https://www.cbc.ca/cmlink/rss-topstories'
+    ];
+
+    const KEYWORDS = [
+      'dnd', 'department of national defence', 'national defence',
+      'defence', 'defense', 'military', 'armed forces', 'canadian forces',
+      'rcaf', 'royal canadian navy', 'canadian army',
+      'federal funding', 'federal funds', 'federal budget', 'federal grant',
+      'government funding', 'infrastructure funding', 'funding announcement',
+      'defence spending', 'defence budget', 'defence procurement',
+      'norad', 'nato canada', 'bill blair', 'minister of defence'
+    ];
+
+    const CACHE_KEY  = 'cbc_dnd_news_v1';
+    const CACHE_TTL  = 24 * 60 * 60 * 1000; // 24 h
+
+    const grid      = document.getElementById('news-grid');
+    const loading   = document.getElementById('news-loading');
+    const timestamp = document.getElementById('news-timestamp');
+    const refreshBtn= document.getElementById('news-refresh');
+
+    function isRelevant(item) {
+      const haystack = `${item.title} ${item.description}`.toLowerCase();
+      return KEYWORDS.some(kw => haystack.includes(kw));
+    }
+
+    async function fetchFeed(url) {
+      const api = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}&count=50`;
+      const res = await fetch(api);
+      if (!res.ok) return [];
+      const data = await res.json();
+      return Array.isArray(data.items) ? data.items : [];
+    }
+
+    async function loadNews(force) {
+      if (!force) {
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (cached) {
+          try {
+            const { ts, articles } = JSON.parse(cached);
+            if (Date.now() - ts < CACHE_TTL) {
+              render(articles, new Date(ts));
+              return;
+            }
+          } catch (_) {}
+        }
+      }
+
+      loading.style.display = 'flex';
+      grid.querySelectorAll('.news-card').forEach(c => c.remove());
+      refreshBtn.disabled = true;
+      refreshBtn.textContent = '… loading';
+
+      try {
+        const results = await Promise.all(FEEDS.map(fetchFeed));
+        const all = results.flat();
+
+        // dedupe by url
+        const seen = new Set();
+        const unique = all.filter(item => {
+          if (seen.has(item.link)) return false;
+          seen.add(item.link);
+          return true;
+        });
+
+        const filtered = unique.filter(isRelevant);
+
+        // sort newest first
+        filtered.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+
+        const now = Date.now();
+        localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: now, articles: filtered }));
+        render(filtered, new Date(now));
+      } catch (err) {
+        showError();
+      } finally {
+        refreshBtn.disabled = false;
+        refreshBtn.textContent = '↻ Refresh';
+      }
+    }
+
+    function render(articles, fetchedAt) {
+      loading.style.display = 'none';
+      grid.querySelectorAll('.news-card').forEach(c => c.remove());
+
+      timestamp.textContent = `Last updated: ${fetchedAt.toLocaleString()}`;
+
+      if (!articles.length) {
+        const empty = document.createElement('p');
+        empty.className = 'news-empty';
+        empty.textContent = 'No DND or federal funding stories found right now. Try refreshing later.';
+        grid.appendChild(empty);
+        return;
+      }
+
+      articles.forEach(item => {
+        const pub = item.pubDate ? new Date(item.pubDate).toLocaleDateString('en-CA', { year:'numeric', month:'short', day:'numeric' }) : '';
+        const card = document.createElement('a');
+        card.className = 'news-card';
+        card.href = item.link;
+        card.target = '_blank';
+        card.rel = 'noopener noreferrer';
+
+        const desc = item.description
+          ? item.description.replace(/<[^>]*>/g, '').slice(0, 130).trim() + '…'
+          : '';
+
+        card.innerHTML = `
+          <div class="news-card-meta">
+            <span class="news-tag">CBC News</span>
+            ${pub ? `<span class="news-date">${pub}</span>` : ''}
+          </div>
+          <h3>${item.title}</h3>
+          ${desc ? `<p>${desc}</p>` : ''}
+          <span class="news-read">Read story &rarr;</span>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function showError() {
+      loading.style.display = 'none';
+      const err = document.createElement('p');
+      err.className = 'news-empty';
+      err.textContent = 'Could not load stories. Check your connection and try again.';
+      grid.appendChild(err);
+      timestamp.textContent = '';
+    }
+
+    refreshBtn.addEventListener('click', () => loadNews(true));
+    loadNews(false);
+  })();
+  </script>
 
   <!-- FOOTER -->
   <footer>
