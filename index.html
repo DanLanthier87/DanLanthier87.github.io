@@ -142,12 +142,29 @@
         id:       'funding',
         max:      3,
         keywords: [
+          // direct funding phrases
           'federal funding', 'federal funds', 'federal grant', 'federal investment',
           'federal budget', 'government funding', 'infrastructure funding',
           'funding announcement', 'announces funding', 'announced funding',
           'government investment', 'federal program', 'federal initiative',
           'federal project', 'federal dollars', 'allocated',
-          'billion-dollar', 'million-dollar',
+          'billion-dollar', 'million-dollar', 'billion dollar', 'million dollar',
+          // natural CBC phrasing
+          'ottawa announces', 'ottawa announced', 'ottawa is investing',
+          'ottawa will invest', 'ottawa plans to spend',
+          'federal government announced', 'federal government will',
+          'government announced', 'government will invest', 'government is investing',
+          'prime minister announced', 'minister announced',
+          'new spending', 'federal spending', 'government spending',
+          'budget allocation', 'approved funding', 'cabinet approved',
+          'infrastructure project', 'infrastructure investment',
+          'housing fund', 'housing investment', 'housing program',
+        ],
+        // also match dollar-amount-in-government-context patterns
+        patterns: [
+          /\$[\d,.]+\s*(million|billion)/i,
+          /\b(billion|million)\b.{0,40}(federal|ottawa|government|minister|budget)/i,
+          /\b(ottawa|federal government|the government)\b.{0,60}(invest|fund|spend|announc|grant|allocat)/i,
         ],
       },
     ];
@@ -158,7 +175,7 @@
       url => `https://thingproxy.freeboard.io/fetch/${url}`,
     ];
 
-    const CACHE_KEY = 'cbc_dashboard_v4';
+    const CACHE_KEY = 'cbc_dashboard_v5';
 
     /* ── STATE ──────────────────────────────────────────── */
     const sectionModes = { global: 'daily', military: 'daily', funding: 'daily' };
@@ -248,9 +265,12 @@
     }
 
     /* ── FILTER & RENDER ────────────────────────────────── */
-    function matches(article, keywords) {
-      const hay = `${article.title} ${article.desc}`.toLowerCase();
-      return keywords.some(kw => hay.includes(kw.toLowerCase()));
+    function matches(article, section) {
+      const hay  = `${article.title} ${article.desc}`.toLowerCase();
+      const full = `${article.title} ${article.desc}`;
+      if (section.keywords.some(kw => hay.includes(kw.toLowerCase()))) return true;
+      if (section.patterns && section.patterns.some(re => re.test(full))) return true;
+      return false;
     }
 
     function renderSection(section) {
@@ -261,7 +281,7 @@
 
       let filtered = articlePool
         .filter(a => !a.pubDate || new Date(a.pubDate) >= cutoff)
-        .filter(a => matches(a, section.keywords))
+        .filter(a => matches(a, section))
         .slice(0, section.max);
 
       let isFallback = false;
@@ -269,7 +289,7 @@
         const weeklyCutoff = getCutoff('weekly');
         filtered = articlePool
           .filter(a => !a.pubDate || new Date(a.pubDate) >= weeklyCutoff)
-          .filter(a => matches(a, section.keywords))
+          .filter(a => matches(a, section))
           .slice(0, section.max);
         isFallback = true;
       }
