@@ -139,33 +139,19 @@
         ],
       },
       {
-        id:       'funding',
-        max:      3,
-        keywords: [
-          // direct funding phrases
-          'federal funding', 'federal funds', 'federal grant', 'federal investment',
-          'federal budget', 'government funding', 'infrastructure funding',
-          'funding announcement', 'announces funding', 'announced funding',
-          'government investment', 'federal program', 'federal initiative',
-          'federal project', 'federal dollars', 'allocated',
-          'billion-dollar', 'million-dollar', 'billion dollar', 'million dollar',
-          // natural CBC phrasing
-          'ottawa announces', 'ottawa announced', 'ottawa is investing',
-          'ottawa will invest', 'ottawa plans to spend',
-          'federal government announced', 'federal government will',
-          'government announced', 'government will invest', 'government is investing',
-          'prime minister announced', 'minister announced',
-          'new spending', 'federal spending', 'government spending',
-          'budget allocation', 'approved funding', 'cabinet approved',
-          'infrastructure project', 'infrastructure investment',
-          'housing fund', 'housing investment', 'housing program',
-        ],
-        // also match dollar-amount-in-government-context patterns
-        patterns: [
-          /\$[\d,.]+\s*(million|billion)/i,
-          /\b(billion|million)\b.{0,40}(federal|ottawa|government|minister|budget)/i,
-          /\b(ottawa|federal government|the government)\b.{0,60}(invest|fund|spend|announc|grant|allocat)/i,
-        ],
+        id:  'funding',
+        max: 3,
+        // AND-logic: story must contain a federal actor AND a spending/investment term.
+        // This prevents sports/corporate dollar-amount stories from matching.
+        match(article) {
+          const hay = `${article.title} ${article.desc}`.toLowerCase();
+          const hasFederal  = ['federal', 'ottawa', 'parliament', 'prime minister',
+                               ' feds ', 'the feds', 'carney', 'trudeau'].some(t => hay.includes(t));
+          const hasSpending = ['fund', 'invest', 'spend', 'grant', 'allocat',
+                               'infrastructure', ' billion', ' million',
+                               'budget', 'program', 'initiative', 'project'].some(t => hay.includes(t));
+          return hasFederal && hasSpending;
+        },
       },
     ];
 
@@ -175,7 +161,7 @@
       url => `https://thingproxy.freeboard.io/fetch/${url}`,
     ];
 
-    const CACHE_KEY = 'cbc_dashboard_v5';
+    const CACHE_KEY = 'cbc_dashboard_v6';
 
     /* ── STATE ──────────────────────────────────────────── */
     const sectionModes = { global: 'daily', military: 'daily', funding: 'daily' };
@@ -245,7 +231,7 @@
         link:    item.querySelector('link')?.textContent?.trim()    ?? '',
         pubDate: item.querySelector('pubDate')?.textContent?.trim() ?? '',
         desc:    (item.querySelector('description')?.textContent ?? '')
-                   .replace(/<[^>]*>/g, '').trim().slice(0, 180),
+                   .replace(/<[^>]*>/g, '').trim().slice(0, 320),
       })).filter(i => i.title && i.link);
     }
 
@@ -266,11 +252,9 @@
 
     /* ── FILTER & RENDER ────────────────────────────────── */
     function matches(article, section) {
-      const hay  = `${article.title} ${article.desc}`.toLowerCase();
-      const full = `${article.title} ${article.desc}`;
-      if (section.keywords.some(kw => hay.includes(kw.toLowerCase()))) return true;
-      if (section.patterns && section.patterns.some(re => re.test(full))) return true;
-      return false;
+      if (section.match) return section.match(article);
+      const hay = `${article.title} ${article.desc}`.toLowerCase();
+      return section.keywords.some(kw => hay.includes(kw.toLowerCase()));
     }
 
     function renderSection(section) {
