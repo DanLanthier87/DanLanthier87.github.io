@@ -3,88 +3,130 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CBC News Reader</title>
+  <title>CBC News Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
   <header class="site-header">
-    <div class="container">
-      <div class="header-inner">
-        <div class="logo">
-          <span class="logo-cbc">CBC</span>
-          <span class="logo-label">News Reader</span>
-        </div>
-        <nav class="feed-tabs" id="feed-tabs">
-          <button class="tab active" data-feed="https://www.cbc.ca/cmlink/rss-topstories">Top Stories</button>
-          <button class="tab" data-feed="https://www.cbc.ca/cmlink/rss-canada">Canada</button>
-          <button class="tab" data-feed="https://www.cbc.ca/cmlink/rss-politics">Politics</button>
-          <button class="tab" data-feed="https://www.cbc.ca/cmlink/rss-world">World</button>
-          <button class="tab" data-feed="https://www.cbc.ca/cmlink/rss-business">Business</button>
-        </nav>
-        <button class="btn-refresh" id="btn-refresh">&#8635; Refresh</button>
+    <div class="container header-inner">
+      <div class="logo">
+        <span class="logo-cbc">CBC</span>
+        <span class="logo-label">News Dashboard</span>
+      </div>
+      <div class="header-right">
+        <span class="next-refresh" id="next-refresh">Next refresh: —</span>
+        <span class="last-fetched" id="last-fetched"></span>
+        <button class="btn-refresh" id="btn-refresh">&#8635; Refresh Now</button>
       </div>
     </div>
   </header>
 
   <main class="container">
-    <div class="toolbar">
-      <p class="status-text" id="status-text">Loading…</p>
+
+    <div class="news-section" id="section-global">
+      <div class="section-heading">
+        <div class="section-title-group">
+          <span class="section-icon">🌍</span>
+          <h2>Biggest Impact Globally</h2>
+        </div>
+        <span class="section-cap">Top 3 daily stories</span>
+      </div>
+      <div class="cards-row" id="grid-global">
+        <div class="section-loading"><div class="spinner"></div></div>
+      </div>
     </div>
-    <div class="news-grid" id="news-grid"></div>
+
+    <div class="news-section" id="section-military">
+      <div class="section-heading">
+        <div class="section-title-group">
+          <span class="section-icon">✈️</span>
+          <h2>RCAF, NORAD &amp; Canadian Military</h2>
+        </div>
+        <span class="section-cap">Top 3 daily stories</span>
+      </div>
+      <div class="cards-row" id="grid-military">
+        <div class="section-loading"><div class="spinner"></div></div>
+      </div>
+    </div>
+
+    <div class="news-section" id="section-funding">
+      <div class="section-heading">
+        <div class="section-title-group">
+          <span class="section-icon">💰</span>
+          <h2>Federal Government Funding Projects</h2>
+        </div>
+        <span class="section-cap">Top 3 daily stories</span>
+      </div>
+      <div class="cards-row" id="grid-funding">
+        <div class="section-loading"><div class="spinner"></div></div>
+      </div>
+    </div>
+
   </main>
 
   <footer class="site-footer">
     <div class="container">
-      <p>Stories sourced from <strong>CBC News</strong> RSS feeds. Not affiliated with CBC/Radio-Canada.</p>
+      <p>Stories sourced from <strong>CBC News</strong> RSS. Refreshes daily at 9:00 AM. Not affiliated with CBC/Radio-Canada.</p>
     </div>
   </footer>
 
   <script>
   (function () {
-    const CACHE_PREFIX = 'cbc_reader_v1_';
-    const CACHE_TTL    = 24 * 60 * 60 * 1000;
 
-    const grid      = document.getElementById('news-grid');
-    const statusEl  = document.getElementById('status-text');
-    const refreshBtn= document.getElementById('btn-refresh');
-    const tabs      = document.querySelectorAll('.tab');
+    /* ── CONFIG ─────────────────────────────────────────── */
+    const FEEDS = [
+      'https://www.cbc.ca/cmlink/rss-topstories',
+      'https://www.cbc.ca/cmlink/rss-world',
+      'https://www.cbc.ca/cmlink/rss-canada',
+      'https://www.cbc.ca/cmlink/rss-politics',
+      'https://www.cbc.ca/cmlink/rss-business',
+    ];
 
-    let activeFeed = tabs[0].dataset.feed;
-
-    function cacheKey(url) {
-      return CACHE_PREFIX + btoa(url).slice(0, 32);
-    }
-
-    function getCache(url) {
-      try {
-        const raw = localStorage.getItem(cacheKey(url));
-        if (!raw) return null;
-        const { ts, items } = JSON.parse(raw);
-        if (Date.now() - ts < CACHE_TTL) return items;
-      } catch (_) {}
-      return null;
-    }
-
-    function setCache(url, items) {
-      try {
-        localStorage.setItem(cacheKey(url), JSON.stringify({ ts: Date.now(), items }));
-      } catch (_) {}
-    }
-
-    function parseRSS(xmlText) {
-      const parser = new DOMParser();
-      const doc    = parser.parseFromString(xmlText, 'text/xml');
-      const items  = Array.from(doc.querySelectorAll('item'));
-      return items.map(item => ({
-        title:   item.querySelector('title')?.textContent?.trim() ?? '',
-        link:    item.querySelector('link')?.textContent?.trim() ?? '',
-        pubDate: item.querySelector('pubDate')?.textContent?.trim() ?? '',
-        desc:    (item.querySelector('description')?.textContent ?? '')
-                   .replace(/<[^>]*>/g, '').trim().slice(0, 160)
-      })).filter(i => i.title && i.link);
-    }
+    const SECTIONS = [
+      {
+        id:       'global',
+        gridId:   'grid-global',
+        max:      3,
+        keywords: [
+          'war', 'invasion', 'conflict', 'ceasefire', 'airstrike', 'missile',
+          'earthquake', 'hurricane', 'tsunami', 'flood', 'wildfire',
+          'pandemic', 'outbreak', 'epidemic',
+          'nuclear', 'sanctions', 'united nations', 'nato', 'g7', 'g20',
+          'climate change', 'global summit', 'world leaders', 'coup',
+          'genocide', 'refugee crisis', 'diplomatic', 'treaty', 'tariff',
+        ],
+      },
+      {
+        id:       'military',
+        gridId:   'grid-military',
+        max:      3,
+        keywords: [
+          'rcaf', 'norad', 'royal canadian air force',
+          'canadian forces', 'canadian military', 'canadian army',
+          'royal canadian navy', 'department of national defence',
+          'national defence', 'dnd', 'armed forces',
+          'fighter jet', 'f-35', 'warship', 'frigate', 'submarine',
+          'defence spending', 'defence budget', 'defence procurement',
+          'bill blair', 'minister of national defence',
+          'military exercise', 'joint operation',
+        ],
+      },
+      {
+        id:       'funding',
+        gridId:   'grid-funding',
+        max:      3,
+        keywords: [
+          'federal funding', 'federal funds', 'federal grant', 'federal investment',
+          'federal budget', 'government funding', 'infrastructure funding',
+          'funding announcement', 'announces funding', 'announced funding',
+          'government investment', 'federal program', 'federal initiative',
+          'federal project', 'federal dollars', 'allocated',
+          'billion-dollar', 'million-dollar',
+        ],
+      },
+    ];
 
     const PROXIES = [
       url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
@@ -92,100 +134,190 @@
       url => `https://thingproxy.freeboard.io/fetch/${url}`,
     ];
 
+    const CACHE_KEY = 'cbc_dashboard_v3';
+
+    /* ── ELEMENTS ───────────────────────────────────────── */
+    const refreshBtn    = document.getElementById('btn-refresh');
+    const nextRefreshEl = document.getElementById('next-refresh');
+    const lastFetchedEl = document.getElementById('last-fetched');
+
+    /* ── CACHE ──────────────────────────────────────────── */
+    function getLastScheduledRefresh() {
+      const now   = new Date();
+      const t9    = new Date(now);
+      t9.setHours(9, 0, 0, 0);
+      if (now < t9) t9.setDate(t9.getDate() - 1); // yesterday's 9am
+      return t9;
+    }
+
+    function getNextScheduledRefresh() {
+      const now = new Date();
+      const t9  = new Date(now);
+      t9.setHours(9, 0, 0, 0);
+      if (now >= t9) t9.setDate(t9.getDate() + 1);
+      return t9;
+    }
+
+    function loadCache() {
+      try {
+        const raw = localStorage.getItem(CACHE_KEY);
+        if (!raw) return null;
+        const { ts, articles } = JSON.parse(raw);
+        if (new Date(ts) >= getLastScheduledRefresh()) return { ts, articles };
+      } catch (_) {}
+      return null;
+    }
+
+    function saveCache(articles) {
+      localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: new Date().toISOString(), articles }));
+    }
+
+    /* ── FETCH ──────────────────────────────────────────── */
     async function fetchWithProxy(url) {
       for (const proxy of PROXIES) {
         try {
-          const res = await fetch(proxy(url));
+          const res  = await fetch(proxy(url));
           if (!res.ok) continue;
           const text = await res.text();
-          if (text.includes('<rss') || text.includes('<feed') || text.includes('<item')) return text;
+          if (text.includes('<item') || text.includes('<entry')) return text;
         } catch (_) { continue; }
       }
-      throw new Error('All proxies failed — check your connection');
+      throw new Error(`All proxies failed for ${url}`);
     }
 
-    async function fetchFeed(url, force) {
-      if (!force) {
-        const cached = getCache(url);
-        if (cached) return { items: cached, fromCache: true };
-      }
-
-      const xml   = await fetchWithProxy(url);
-      const items = parseRSS(xml);
-      setCache(url, items);
-      return { items, fromCache: false };
+    function parseRSS(xmlText) {
+      const doc   = new DOMParser().parseFromString(xmlText, 'text/xml');
+      return Array.from(doc.querySelectorAll('item')).map(item => ({
+        title:   item.querySelector('title')?.textContent?.trim()       ?? '',
+        link:    item.querySelector('link')?.textContent?.trim()        ?? '',
+        pubDate: item.querySelector('pubDate')?.textContent?.trim()     ?? '',
+        desc:    (item.querySelector('description')?.textContent ?? '')
+                   .replace(/<[^>]*>/g, '').trim().slice(0, 180),
+      })).filter(i => i.title && i.link);
     }
 
-    function renderItems(items, fromCache) {
+    /* ── FILTER ─────────────────────────────────────────── */
+    function matches(article, keywords) {
+      const hay = `${article.title} ${article.desc}`.toLowerCase();
+      return keywords.some(kw => hay.includes(kw.toLowerCase()));
+    }
+
+    function pickSection(pool, section) {
+      return pool
+        .filter(a => matches(a, section.keywords))
+        .slice(0, section.max);
+    }
+
+    /* ── RENDER ─────────────────────────────────────────── */
+    function renderGrid(gridId, articles) {
+      const grid = document.getElementById(gridId);
       grid.innerHTML = '';
 
-      if (!items.length) {
-        grid.innerHTML = '<p class="empty">No stories found.</p>';
-        statusEl.textContent = 'No results.';
+      if (!articles.length) {
+        grid.innerHTML = '<p class="empty">No matching stories right now — check back after the next refresh.</p>';
         return;
       }
 
-      const ts = fromCache ? ' (cached)' : ' (live)';
-      statusEl.textContent = `${items.length} stories · ${new Date().toLocaleTimeString()}${ts}`;
-
-      items.forEach(item => {
-        const pub = item.pubDate
-          ? new Date(item.pubDate).toLocaleDateString('en-CA', { weekday:'short', month:'short', day:'numeric' })
+      articles.forEach(a => {
+        const pub = a.pubDate
+          ? new Date(a.pubDate).toLocaleDateString('en-CA', { weekday:'short', month:'short', day:'numeric' })
           : '';
-
         const card = document.createElement('a');
         card.className = 'card';
-        card.href = item.link;
-        card.target = '_blank';
-        card.rel = 'noopener noreferrer';
+        card.href      = a.link;
+        card.target    = '_blank';
+        card.rel       = 'noopener noreferrer';
         card.innerHTML = `
           <div class="card-meta">
             <span class="card-source">CBC News</span>
             ${pub ? `<span class="card-date">${pub}</span>` : ''}
           </div>
-          <h2>${item.title}</h2>
-          ${item.desc ? `<p>${item.desc}…</p>` : ''}
-          <span class="card-read">Read →</span>
+          <h3>${a.title}</h3>
+          ${a.desc ? `<p>${a.desc}…</p>` : ''}
+          <span class="card-read">Read story →</span>
         `;
         grid.appendChild(card);
       });
     }
 
-    function showError(msg) {
-      grid.innerHTML = `<p class="empty error">⚠ ${msg}</p>`;
-      statusEl.textContent = 'Error loading feed.';
+    function setLoading() {
+      SECTIONS.forEach(s => {
+        document.getElementById(s.gridId).innerHTML =
+          '<div class="section-loading"><div class="spinner"></div></div>';
+      });
     }
 
-    async function load(force) {
-      refreshBtn.disabled = true;
-      refreshBtn.textContent = '…';
-      statusEl.textContent = 'Loading…';
-      grid.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
-
-      try {
-        const { items, fromCache } = await fetchFeed(activeFeed, force);
-        renderItems(items, fromCache);
-      } catch (err) {
-        showError(`Could not load feed: ${err.message}`);
-        console.error('[CBC Reader]', err);
-      } finally {
-        refreshBtn.disabled = false;
-        refreshBtn.textContent = '↻ Refresh';
+    function updateHeader(ts) {
+      const next = getNextScheduledRefresh();
+      const isToday = next.toDateString() === new Date().toDateString();
+      nextRefreshEl.textContent = `Next refresh: ${isToday ? 'today' : 'tomorrow'} at 9:00 AM`;
+      if (ts) {
+        lastFetchedEl.textContent = `Last fetched: ${new Date(ts).toLocaleTimeString()}`;
       }
     }
 
-    tabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        tabs.forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        activeFeed = tab.dataset.feed;
-        load(false);
-      });
-    });
+    /* ── LOAD ───────────────────────────────────────────── */
+    async function load(force) {
+      refreshBtn.disabled    = true;
+      refreshBtn.textContent = '… loading';
 
+      if (!force) {
+        const cached = loadCache();
+        if (cached) {
+          SECTIONS.forEach(s => renderGrid(s.gridId, pickSection(cached.articles, s)));
+          updateHeader(cached.ts);
+          refreshBtn.disabled    = false;
+          refreshBtn.textContent = '↻ Refresh Now';
+          return;
+        }
+      }
+
+      setLoading();
+
+      try {
+        const results  = await Promise.allSettled(FEEDS.map(fetchWithProxy));
+        const allItems = results
+          .filter(r => r.status === 'fulfilled')
+          .flatMap(r => parseRSS(r.value));
+
+        // dedupe by link
+        const seen    = new Set();
+        const pool    = allItems.filter(a => {
+          if (seen.has(a.link)) return false;
+          seen.add(a.link);
+          return true;
+        });
+
+        // sort newest first
+        pool.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+
+        saveCache(pool);
+        SECTIONS.forEach(s => renderGrid(s.gridId, pickSection(pool, s)));
+        updateHeader(new Date().toISOString());
+      } catch (err) {
+        SECTIONS.forEach(s => {
+          document.getElementById(s.gridId).innerHTML =
+            `<p class="empty error">⚠ Could not load stories: ${err.message}</p>`;
+        });
+        console.error('[CBC Dashboard]', err);
+      } finally {
+        refreshBtn.disabled    = false;
+        refreshBtn.textContent = '↻ Refresh Now';
+      }
+    }
+
+    /* ── SCHEDULE 9AM AUTO-REFRESH ──────────────────────── */
+    function scheduleRefresh() {
+      const ms = getNextScheduledRefresh() - Date.now();
+      setTimeout(() => { load(true); scheduleRefresh(); }, ms);
+    }
+
+    /* ── INIT ───────────────────────────────────────────── */
     refreshBtn.addEventListener('click', () => load(true));
-
+    updateHeader(null);
+    scheduleRefresh();
     load(false);
+
   })();
   </script>
 
