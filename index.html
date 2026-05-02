@@ -141,15 +141,25 @@
       {
         id:  'funding',
         max: 3,
-        // AND-logic: story must contain a federal actor AND a spending/investment term.
-        // This prevents sports/corporate dollar-amount stories from matching.
         match(article) {
           const hay = `${article.title} ${article.desc}`.toLowerCase();
+
+          // 1. Exclude regulatory/enforcement stories (fines, penalties, violations)
+          if ([' fine', 'penalt', 'violat', 'lawsuit', 'charges', 'fraud',
+               'court order', 'levy', 'levied'].some(t => hay.includes(t))) return false;
+
+          // 2. Exclude sports-related funding (grants to teams/leagues/athletes)
+          if (['soccer', 'hockey', 'football', 'baseball', 'lacrosse', 'curling',
+               ' nhl', ' nba', ' cfl', ' mls', ' mlb',
+               'sport ', 'sports ', 'athlete', 'olympic', 'arena', 'stadium',
+               'rink'].some(t => hay.includes(t))) return false;
+
+          // 3. Must have a federal government actor AND a project/investment term
           const hasFederal  = ['federal', 'ottawa', 'parliament', 'prime minister',
-                               ' feds ', 'the feds', 'carney', 'trudeau'].some(t => hay.includes(t));
-          const hasSpending = ['fund', 'invest', 'spend', 'grant', 'allocat',
-                               'infrastructure', ' billion', ' million',
-                               'budget', 'program', 'initiative', 'project'].some(t => hay.includes(t));
+                               ' feds', 'carney', 'trudeau'].some(t => hay.includes(t));
+          const hasSpending = ['infrastructure', 'invest', 'billion', 'million',
+                               'funding', 'grant', 'allocat', 'construct', 'build',
+                               'development'].some(t => hay.includes(t));
           return hasFederal && hasSpending;
         },
       },
@@ -161,7 +171,7 @@
       url => `https://thingproxy.freeboard.io/fetch/${url}`,
     ];
 
-    const CACHE_KEY = 'cbc_dashboard_v6';
+    const CACHE_KEY = 'cbc_dashboard_v7';
 
     /* ── STATE ──────────────────────────────────────────── */
     const sectionModes = { global: 'daily', military: 'daily', funding: 'daily' };
