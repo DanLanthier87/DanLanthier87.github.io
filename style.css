@@ -283,6 +283,10 @@ main {
   border-radius: 5px;
   flex-shrink: 0;
 }
+.card-source.bbc {
+  background: #1a1a6e;
+  color: #a8b8ff;
+}
 
 .card-date {
   font-size: .75rem;
