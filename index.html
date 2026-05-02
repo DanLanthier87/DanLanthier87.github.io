@@ -18,47 +18,74 @@
       <div class="header-right">
         <span class="next-refresh" id="next-refresh">Next refresh: —</span>
         <span class="last-fetched" id="last-fetched"></span>
-        <button class="btn-refresh" id="btn-refresh">&#8635; Refresh Now</button>
+        <button class="btn-refresh-all" id="btn-refresh-all">&#8635; Refresh All</button>
       </div>
     </div>
   </header>
 
   <main class="container">
 
-    <div class="news-section" id="section-global">
+    <!-- GLOBAL IMPACT -->
+    <div class="news-section">
       <div class="section-heading">
         <div class="section-title-group">
           <span class="section-icon">🌍</span>
           <h2>Biggest Impact Globally</h2>
+          <span class="section-cap">Top 3 stories</span>
         </div>
-        <span class="section-cap">Top 3 daily stories</span>
+        <div class="section-controls">
+          <div class="mode-toggle">
+            <button class="btn-mode active" data-section="global" data-mode="daily">Daily</button>
+            <button class="btn-mode" data-section="global" data-mode="weekly">Weekly</button>
+          </div>
+          <button class="btn-section-refresh" data-section="global">&#8635; Refresh</button>
+        </div>
       </div>
+      <p class="fallback-notice" id="notice-global" hidden>No stories today — showing this week's top results.</p>
       <div class="cards-row" id="grid-global">
         <div class="section-loading"><div class="spinner"></div></div>
       </div>
     </div>
 
-    <div class="news-section" id="section-military">
+    <!-- MILITARY -->
+    <div class="news-section">
       <div class="section-heading">
         <div class="section-title-group">
           <span class="section-icon">✈️</span>
           <h2>RCAF, NORAD &amp; Canadian Military</h2>
+          <span class="section-cap">Top 3 stories</span>
         </div>
-        <span class="section-cap">Top 3 daily stories</span>
+        <div class="section-controls">
+          <div class="mode-toggle">
+            <button class="btn-mode active" data-section="military" data-mode="daily">Daily</button>
+            <button class="btn-mode" data-section="military" data-mode="weekly">Weekly</button>
+          </div>
+          <button class="btn-section-refresh" data-section="military">&#8635; Refresh</button>
+        </div>
       </div>
+      <p class="fallback-notice" id="notice-military" hidden>No stories today — showing this week's top results.</p>
       <div class="cards-row" id="grid-military">
         <div class="section-loading"><div class="spinner"></div></div>
       </div>
     </div>
 
-    <div class="news-section" id="section-funding">
+    <!-- FUNDING -->
+    <div class="news-section">
       <div class="section-heading">
         <div class="section-title-group">
           <span class="section-icon">💰</span>
           <h2>Federal Government Funding Projects</h2>
+          <span class="section-cap">Top 3 stories</span>
         </div>
-        <span class="section-cap">Top 3 daily stories</span>
+        <div class="section-controls">
+          <div class="mode-toggle">
+            <button class="btn-mode active" data-section="funding" data-mode="daily">Daily</button>
+            <button class="btn-mode" data-section="funding" data-mode="weekly">Weekly</button>
+          </div>
+          <button class="btn-section-refresh" data-section="funding">&#8635; Refresh</button>
+        </div>
       </div>
+      <p class="fallback-notice" id="notice-funding" hidden>No stories today — showing this week's top results.</p>
       <div class="cards-row" id="grid-funding">
         <div class="section-loading"><div class="spinner"></div></div>
       </div>
@@ -68,7 +95,7 @@
 
   <footer class="site-footer">
     <div class="container">
-      <p>Stories sourced from <strong>CBC News</strong> RSS. Refreshes daily at 9:00 AM. Not affiliated with CBC/Radio-Canada.</p>
+      <p>Stories sourced from <strong>CBC News</strong> RSS. Auto-refreshes daily at 9:00 AM. Not affiliated with CBC/Radio-Canada.</p>
     </div>
   </footer>
 
@@ -87,7 +114,6 @@
     const SECTIONS = [
       {
         id:       'global',
-        gridId:   'grid-global',
         max:      3,
         keywords: [
           'war', 'invasion', 'conflict', 'ceasefire', 'airstrike', 'missile',
@@ -100,7 +126,6 @@
       },
       {
         id:       'military',
-        gridId:   'grid-military',
         max:      3,
         keywords: [
           'rcaf', 'norad', 'royal canadian air force',
@@ -115,7 +140,6 @@
       },
       {
         id:       'funding',
-        gridId:   'grid-funding',
         max:      3,
         keywords: [
           'federal funding', 'federal funds', 'federal grant', 'federal investment',
@@ -134,30 +158,42 @@
       url => `https://thingproxy.freeboard.io/fetch/${url}`,
     ];
 
-    const CACHE_KEY = 'cbc_dashboard_v3';
+    const CACHE_KEY = 'cbc_dashboard_v4';
+
+    /* ── STATE ──────────────────────────────────────────── */
+    const sectionModes = { global: 'daily', military: 'daily', funding: 'daily' };
+    let articlePool = [];
 
     /* ── ELEMENTS ───────────────────────────────────────── */
-    const refreshBtn    = document.getElementById('btn-refresh');
     const nextRefreshEl = document.getElementById('next-refresh');
     const lastFetchedEl = document.getElementById('last-fetched');
+    const refreshAllBtn = document.getElementById('btn-refresh-all');
 
-    /* ── CACHE ──────────────────────────────────────────── */
+    /* ── TIME HELPERS ───────────────────────────────────── */
     function getLastScheduledRefresh() {
-      const now   = new Date();
-      const t9    = new Date(now);
+      const t9 = new Date();
       t9.setHours(9, 0, 0, 0);
-      if (now < t9) t9.setDate(t9.getDate() - 1); // yesterday's 9am
+      if (new Date() < t9) t9.setDate(t9.getDate() - 1);
       return t9;
     }
 
     function getNextScheduledRefresh() {
-      const now = new Date();
-      const t9  = new Date(now);
+      const t9 = new Date();
       t9.setHours(9, 0, 0, 0);
-      if (now >= t9) t9.setDate(t9.getDate() + 1);
+      if (new Date() >= t9) t9.setDate(t9.getDate() + 1);
       return t9;
     }
 
+    function getCutoff(mode) {
+      if (mode === 'weekly') {
+        const d = new Date();
+        d.setDate(d.getDate() - 7);
+        return d;
+      }
+      return getLastScheduledRefresh();
+    }
+
+    /* ── CACHE ──────────────────────────────────────────── */
     function loadCache() {
       try {
         const raw = localStorage.getItem(CACHE_KEY);
@@ -186,39 +222,67 @@
     }
 
     function parseRSS(xmlText) {
-      const doc   = new DOMParser().parseFromString(xmlText, 'text/xml');
+      const doc = new DOMParser().parseFromString(xmlText, 'text/xml');
       return Array.from(doc.querySelectorAll('item')).map(item => ({
-        title:   item.querySelector('title')?.textContent?.trim()       ?? '',
-        link:    item.querySelector('link')?.textContent?.trim()        ?? '',
-        pubDate: item.querySelector('pubDate')?.textContent?.trim()     ?? '',
+        title:   item.querySelector('title')?.textContent?.trim()   ?? '',
+        link:    item.querySelector('link')?.textContent?.trim()    ?? '',
+        pubDate: item.querySelector('pubDate')?.textContent?.trim() ?? '',
         desc:    (item.querySelector('description')?.textContent ?? '')
                    .replace(/<[^>]*>/g, '').trim().slice(0, 180),
       })).filter(i => i.title && i.link);
     }
 
-    /* ── FILTER ─────────────────────────────────────────── */
+    async function fetchAllFeeds() {
+      const results = await Promise.allSettled(FEEDS.map(fetchWithProxy));
+      const all     = results
+        .filter(r => r.status === 'fulfilled')
+        .flatMap(r => parseRSS(r.value));
+      const seen = new Set();
+      const pool = all.filter(a => {
+        if (seen.has(a.link)) return false;
+        seen.add(a.link);
+        return true;
+      });
+      pool.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+      return pool;
+    }
+
+    /* ── FILTER & RENDER ────────────────────────────────── */
     function matches(article, keywords) {
       const hay = `${article.title} ${article.desc}`.toLowerCase();
       return keywords.some(kw => hay.includes(kw.toLowerCase()));
     }
 
-    function pickSection(pool, section) {
-      return pool
+    function renderSection(section) {
+      const mode    = sectionModes[section.id];
+      const grid    = document.getElementById(`grid-${section.id}`);
+      const notice  = document.getElementById(`notice-${section.id}`);
+      const cutoff  = getCutoff(mode);
+
+      let filtered = articlePool
+        .filter(a => !a.pubDate || new Date(a.pubDate) >= cutoff)
         .filter(a => matches(a, section.keywords))
         .slice(0, section.max);
-    }
 
-    /* ── RENDER ─────────────────────────────────────────── */
-    function renderGrid(gridId, articles) {
-      const grid = document.getElementById(gridId);
+      let isFallback = false;
+      if (filtered.length === 0 && mode === 'daily') {
+        const weeklyCutoff = getCutoff('weekly');
+        filtered = articlePool
+          .filter(a => !a.pubDate || new Date(a.pubDate) >= weeklyCutoff)
+          .filter(a => matches(a, section.keywords))
+          .slice(0, section.max);
+        isFallback = true;
+      }
+
+      notice.hidden = !(isFallback && filtered.length > 0);
       grid.innerHTML = '';
 
-      if (!articles.length) {
-        grid.innerHTML = '<p class="empty">No matching stories right now — check back after the next refresh.</p>';
+      if (!filtered.length) {
+        grid.innerHTML = '<p class="empty">No matching stories found this week.</p>';
         return;
       }
 
-      articles.forEach(a => {
+      filtered.forEach(a => {
         const pub = a.pubDate
           ? new Date(a.pubDate).toLocaleDateString('en-CA', { weekday:'short', month:'short', day:'numeric' })
           : '';
@@ -240,83 +304,103 @@
       });
     }
 
-    function setLoading() {
-      SECTIONS.forEach(s => {
-        document.getElementById(s.gridId).innerHTML =
-          '<div class="section-loading"><div class="spinner"></div></div>';
-      });
+    function renderAll() {
+      SECTIONS.forEach(renderSection);
+    }
+
+    function setSectionLoading(sectionId) {
+      document.getElementById(`grid-${sectionId}`).innerHTML =
+        '<div class="section-loading"><div class="spinner"></div></div>';
+      const notice = document.getElementById(`notice-${sectionId}`);
+      if (notice) notice.hidden = true;
     }
 
     function updateHeader(ts) {
-      const next = getNextScheduledRefresh();
+      const next    = getNextScheduledRefresh();
       const isToday = next.toDateString() === new Date().toDateString();
       nextRefreshEl.textContent = `Next refresh: ${isToday ? 'today' : 'tomorrow'} at 9:00 AM`;
-      if (ts) {
-        lastFetchedEl.textContent = `Last fetched: ${new Date(ts).toLocaleTimeString()}`;
-      }
+      if (ts) lastFetchedEl.textContent = `Fetched: ${new Date(ts).toLocaleTimeString()}`;
     }
 
-    /* ── LOAD ───────────────────────────────────────────── */
-    async function load(force) {
-      refreshBtn.disabled    = true;
-      refreshBtn.textContent = '… loading';
+    function setAllBtnsDisabled(disabled) {
+      refreshAllBtn.disabled = disabled;
+      refreshAllBtn.textContent = disabled ? '… loading' : '↻ Refresh All';
+      document.querySelectorAll('.btn-section-refresh').forEach(b => {
+        b.disabled = disabled;
+      });
+    }
 
-      if (!force) {
-        const cached = loadCache();
-        if (cached) {
-          SECTIONS.forEach(s => renderGrid(s.gridId, pickSection(cached.articles, s)));
-          updateHeader(cached.ts);
-          refreshBtn.disabled    = false;
-          refreshBtn.textContent = '↻ Refresh Now';
-          return;
-        }
+    /* ── LOAD (full fetch) ──────────────────────────────── */
+    async function loadFresh(triggeredBySectionId) {
+      setAllBtnsDisabled(true);
+
+      if (triggeredBySectionId) {
+        setSectionLoading(triggeredBySectionId);
+      } else {
+        SECTIONS.forEach(s => setSectionLoading(s.id));
       }
-
-      setLoading();
 
       try {
-        const results  = await Promise.allSettled(FEEDS.map(fetchWithProxy));
-        const allItems = results
-          .filter(r => r.status === 'fulfilled')
-          .flatMap(r => parseRSS(r.value));
-
-        // dedupe by link
-        const seen    = new Set();
-        const pool    = allItems.filter(a => {
-          if (seen.has(a.link)) return false;
-          seen.add(a.link);
-          return true;
-        });
-
-        // sort newest first
-        pool.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-
-        saveCache(pool);
-        SECTIONS.forEach(s => renderGrid(s.gridId, pickSection(pool, s)));
+        articlePool = await fetchAllFeeds();
+        saveCache(articlePool);
         updateHeader(new Date().toISOString());
+        renderAll();
       } catch (err) {
-        SECTIONS.forEach(s => {
-          document.getElementById(s.gridId).innerHTML =
-            `<p class="empty error">⚠ Could not load stories: ${err.message}</p>`;
-        });
+        const msg = `<p class="empty error">⚠ Could not load: ${err.message}</p>`;
+        if (triggeredBySectionId) {
+          document.getElementById(`grid-${triggeredBySectionId}`).innerHTML = msg;
+        } else {
+          SECTIONS.forEach(s => { document.getElementById(`grid-${s.id}`).innerHTML = msg; });
+        }
         console.error('[CBC Dashboard]', err);
       } finally {
-        refreshBtn.disabled    = false;
-        refreshBtn.textContent = '↻ Refresh Now';
+        setAllBtnsDisabled(false);
       }
     }
 
-    /* ── SCHEDULE 9AM AUTO-REFRESH ──────────────────────── */
+    /* ── INIT & EVENTS ──────────────────────────────────── */
+    // Mode toggle buttons
+    document.querySelectorAll('.btn-mode').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const sectionId = btn.dataset.section;
+        const mode      = btn.dataset.mode;
+        sectionModes[sectionId] = mode;
+
+        // Update active state within this toggle group
+        btn.closest('.mode-toggle').querySelectorAll('.btn-mode').forEach(b => {
+          b.classList.toggle('active', b === btn);
+        });
+
+        renderSection(SECTIONS.find(s => s.id === sectionId));
+      });
+    });
+
+    // Per-section refresh
+    document.querySelectorAll('.btn-section-refresh').forEach(btn => {
+      btn.addEventListener('click', () => loadFresh(btn.dataset.section));
+    });
+
+    // Refresh all
+    refreshAllBtn.addEventListener('click', () => loadFresh(null));
+
+    // 9am auto-refresh
     function scheduleRefresh() {
       const ms = getNextScheduledRefresh() - Date.now();
-      setTimeout(() => { load(true); scheduleRefresh(); }, ms);
+      setTimeout(() => { loadFresh(null); scheduleRefresh(); }, ms);
     }
 
-    /* ── INIT ───────────────────────────────────────────── */
-    refreshBtn.addEventListener('click', () => load(true));
+    // Startup
     updateHeader(null);
     scheduleRefresh();
-    load(false);
+
+    const cached = loadCache();
+    if (cached) {
+      articlePool = cached.articles;
+      updateHeader(cached.ts);
+      renderAll();
+    } else {
+      loadFresh(null);
+    }
 
   })();
   </script>
