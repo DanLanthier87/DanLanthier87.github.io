@@ -86,18 +86,32 @@
       })).filter(i => i.title && i.link);
     }
 
+    const PROXIES = [
+      url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+      url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+      url => `https://thingproxy.freeboard.io/fetch/${url}`,
+    ];
+
+    async function fetchWithProxy(url) {
+      for (const proxy of PROXIES) {
+        try {
+          const res = await fetch(proxy(url));
+          if (!res.ok) continue;
+          const text = await res.text();
+          if (text.includes('<rss') || text.includes('<feed') || text.includes('<item')) return text;
+        } catch (_) { continue; }
+      }
+      throw new Error('All proxies failed — check your connection');
+    }
+
     async function fetchFeed(url, force) {
       if (!force) {
         const cached = getCache(url);
         if (cached) return { items: cached, fromCache: true };
       }
 
-      const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-      const res  = await fetch(proxyUrl);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      if (!data.contents) throw new Error('Empty response from proxy');
-      const items = parseRSS(data.contents);
+      const xml   = await fetchWithProxy(url);
+      const items = parseRSS(xml);
       setCache(url, items);
       return { items, fromCache: false };
     }
